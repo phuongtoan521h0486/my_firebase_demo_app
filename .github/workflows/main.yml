@@ -1,0 +1,52 @@
+name: Flutter CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and Test Flutter Application
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Setup Flutter SDK
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      # Install Flutter dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Run Flutter format check (optional but recommended)
+      - name: Run Flutter format check
+        run: flutter format --set-exit-if-changed .
+
+      # Analyze code for linting issues
+      - name: Run Flutter analyze
+        run: flutter analyze
+
+      # Run unit tests
+      - name: Run Flutter unit tests
+        run: flutter test
+
+      # Build APK (optional)
+      - name: Build APK
+        run: flutter build apk --release
+
+      # Build iOS (macOS only)
+      # This step will be skipped unless you run on macOS runner (by changing `runs-on` to `macos-latest`).
+      - name: Build iOS (skipped on Linux)
+        if: runner.os == 'macOS'
+        run: flutter build ios --release
+
