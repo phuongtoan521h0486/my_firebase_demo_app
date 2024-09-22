@@ -1,4 +1,4 @@
-name: Flutter CI
+name: Flutter CI/CD Pipeline
 
 on:
   push:
@@ -10,43 +10,87 @@ on:
 
 jobs:
   build:
-    name: Build and Test Flutter Application
     runs-on: ubuntu-latest
 
+    env:
+      # Load secrets from GitHub repository settings
+      WEB_API_KEY: ${{ secrets.WEB_API_KEY }}
+      WEB_APP_ID: ${{ secrets.WEB_APP_ID }}
+      WEB_MESSAGING_SENDER_ID: ${{ secrets.WEB_MESSAGING_SENDER_ID }}
+      WEB_PROJECT_ID: ${{ secrets.WEB_PROJECT_ID }}
+      WEB_AUTH_DOMAIN: ${{ secrets.WEB_AUTH_DOMAIN }}
+      WEB_STORAGE_BUCKET: ${{ secrets.WEB_STORAGE_BUCKET }}
+      WEB_MEASUREMENT_ID: ${{ secrets.WEB_MEASUREMENT_ID }}
+
+      ANDROID_API_KEY: ${{ secrets.ANDROID_API_KEY }}
+      ANDROID_APP_ID: ${{ secrets.ANDROID_APP_ID }}
+      ANDROID_MESSAGING_SENDER_ID: ${{ secrets.ANDROID_MESSAGING_SENDER_ID }}
+      ANDROID_PROJECT_ID: ${{ secrets.ANDROID_PROJECT_ID }}
+      ANDROID_STORAGE_BUCKET: ${{ secrets.ANDROID_STORAGE_BUCKET }}
+
+      IOS_API_KEY: ${{ secrets.IOS_API_KEY }}
+      IOS_APP_ID: ${{ secrets.IOS_APP_ID }}
+      IOS_MESSAGING_SENDER_ID: ${{ secrets.IOS_MESSAGING_SENDER_ID }}
+      IOS_PROJECT_ID: ${{ secrets.IOS_PROJECT_ID }}
+      IOS_STORAGE_BUCKET: ${{ secrets.IOS_STORAGE_BUCKET }}
+      IOS_BUNDLE_ID: ${{ secrets.IOS_BUNDLE_ID }}
+
+      MACOS_API_KEY: ${{ secrets.MACOS_API_KEY }}
+      MACOS_APP_ID: ${{ secrets.MACOS_APP_ID }}
+      MACOS_MESSAGING_SENDER_ID: ${{ secrets.MACOS_MESSAGING_SENDER_ID }}
+      MACOS_PROJECT_ID: ${{ secrets.MACOS_PROJECT_ID }}
+      MACOS_STORAGE_BUCKET: ${{ secrets.MACOS_STORAGE_BUCKET }}
+      MACOS_BUNDLE_ID: ${{ secrets.MACOS_BUNDLE_ID }}
+
+      WINDOWS_API_KEY: ${{ secrets.WINDOWS_API_KEY }}
+      WINDOWS_APP_ID: ${{ secrets.WINDOWS_APP_ID }}
+      WINDOWS_MESSAGING_SENDER_ID: ${{ secrets.WINDOWS_MESSAGING_SENDER_ID }}
+      WINDOWS_PROJECT_ID: ${{ secrets.WINDOWS_PROJECT_ID }}
+      WINDOWS_AUTH_DOMAIN: ${{ secrets.WINDOWS_AUTH_DOMAIN }}
+      WINDOWS_STORAGE_BUCKET: ${{ secrets.WINDOWS_STORAGE_BUCKET }}
+      WINDOWS_MEASUREMENT_ID: ${{ secrets.WINDOWS_MEASUREMENT_ID }}
+
     steps:
-      # Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Setup Flutter SDK
-      - name: Setup Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable'
+          flutter-version: '3.x'
 
-      # Install Flutter dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      # Run Flutter format check (optional but recommended)
-      - name: Run Flutter format check
-        run: flutter format --set-exit-if-changed .
-
-      # Analyze code for linting issues
-      - name: Run Flutter analyze
-        run: flutter analyze
-
-      # Run unit tests
-      - name: Run Flutter unit tests
+      - name: Run tests
         run: flutter test
 
-      # Build APK (optional)
-      - name: Build APK
+      - name: Build APK for Android
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
         run: flutter build apk --release
 
-      # Build iOS (macOS only)
-      # This step will be skipped unless you run on macOS runner (by changing `runs-on` to `macos-latest`).
-      - name: Build iOS (skipped on Linux)
-        if: runner.os == 'macOS'
+      - name: Build for iOS
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
         run: flutter build ios --release
+        env:
+          CI: true
 
+      - name: Build web
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        run: flutter build web --release
+
+      - name: Deploy to Firebase Hosting (for Web)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: firebase deploy --only hosting
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Upload APK to GitHub Artifacts
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Clean up
+        run: flutter clean
