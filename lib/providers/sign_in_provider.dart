@@ -9,6 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import 'package:http/http.dart' as http;
 
+import '../strategies/sign_in_factory.dart';
+import '../strategies/sign_in_strategy.dart';
+
+
 class SignInProvider extends ChangeNotifier {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final FacebookAuth facebookAuth = FacebookAuth.instance;
@@ -45,7 +49,7 @@ class SignInProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // login voi google
+  // login voi google // old
   Future signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleSignInAccount =
@@ -107,7 +111,7 @@ class SignInProvider extends ChangeNotifier {
     }
   }
 
-  // login voi facebook
+  // login voi facebook // old
   Future signInWithFacebook() async {
     final LoginResult result = await facebookAuth.login(permissions: ['email', 'public_profile']);
     final token = result.accessToken!.tokenString;
@@ -166,12 +170,23 @@ class SignInProvider extends ChangeNotifier {
   }
 
   // dang xuat
-  Future userSignOut() async {
+  Future signOut(String type) async {
     await firebaseAuth.signOut();
-    await googleSignIn.signOut();
+    await SignInStrategyFactory.getStrategy(_mapSignInType(type)).signOut();
     _isSignedIn = false;
     clearStoredData();
     notifyListeners();
+  }
+
+  SignInType _mapSignInType(String type) {
+    switch (type) {
+      case "google":
+        return SignInType.google;
+      case "facebook":
+        return SignInType.facebook;
+      default:
+        return throw UnsupportedError("Unsupported sign-in provider");
+    }
   }
 
   // xoa thong tin dang nhap
@@ -246,5 +261,50 @@ class SignInProvider extends ChangeNotifier {
       provider: sharedPreferences.getString('provider'),
     );
     notifyListeners();
+  }
+
+  // new
+  Future signIn(SignInType type) async {
+    try {
+      // Get the correct strategy from the factory
+      SignInStrategy strategy = SignInStrategyFactory.getStrategy(type);
+
+      // Use the strategy to sign in
+      final userDetails = await strategy.signIn();
+
+      if (userDetails == null) {
+        _errorCode = "Sign-in cancel by user.";
+        _hasError = true;
+        notifyListeners();
+        return;
+      } else  {
+        _myUser = userDetails;
+        _hasError = false;
+        notifyListeners();
+      }
+    } on FirebaseAuthException catch (e) {
+      _hasError = true;
+      _errorCode = _handleFirebaseError(e);
+      notifyListeners();
+    } catch (e) {
+      _hasError = true;
+      _errorCode = "Sign-in cancel by user.";
+      notifyListeners();
+    }
+  }
+
+  String _handleFirebaseError(FirebaseAuthException e) {
+    switch (e.code) {
+      case "account-exists-with-different-credential":
+        return "Account already exists with another provider.";
+      case "invalid-credential":
+        return "Invalid credentials.";
+      case "operation-not-allowed":
+        return "Provider sign-in is not enabled in Firebase.";
+      case "user-disabled":
+        return "This user has been disabled.";
+      default:
+        return "Unexpected error: ${e.message}";
+    }
   }
 }

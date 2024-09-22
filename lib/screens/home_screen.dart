@@ -4,7 +4,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 import 'package:my_firebase_demo_app/providers/sign_in_provider.dart';
 import 'package:my_firebase_demo_app/screens/login_screen.dart';
-import 'package:my_firebase_demo_app/screens/splash_screen.dart';
 import 'package:my_firebase_demo_app/utils/next_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -19,18 +18,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future getData() async {
     final signInProvider = context.read<SignInProvider>();
-    signInProvider.getDataFromSharedPreferences();
+    await signInProvider.getDataFromSharedPreferences();
   }
 
   @override
   void initState() {
-    super.initState();
     getData();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final signInProvider = context.read<SignInProvider>();
+    final signInProvider = context.watch<SignInProvider>();
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -59,7 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(100),
                       child: Image(
                         fit: BoxFit.fill,
-                          image: CachedNetworkImageProvider(signInProvider.myUser!.imageUrl!),)
+                          image: CachedNetworkImageProvider(signInProvider.myUser!.imageUrl!),
+                      ),
                     ),
                   ),
                 ),
@@ -118,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      signInProvider.userSignOut();
+                      signInProvider.signOut((signInProvider.myUser!.provider)!);
                       nextScreenReplace(context, const LoginScreen());
                     },
                     style: ElevatedButton.styleFrom(
