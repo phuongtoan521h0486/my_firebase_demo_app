@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resoure>
+    <string name="app_name">FlutterAuth</string>
+    <string name="facebook_app_id">1302683180700115</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">c65b5345d300df694df35b47a7ed4784</string>
+    <color name="com_facebook_button_background_color_focused_disabled">#E0E0E0</color>
+    <color name="com_facebook_button_background_color_focused">#3b5998</color>
+    <color name="com_facebook_button_border_color_focused">#3b5998</color>
+</resoure>
