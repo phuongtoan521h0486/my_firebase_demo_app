@@ -23,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final Map<SignInType, RoundedLoadingButtonController> controllers = {
     SignInType.google: RoundedLoadingButtonController(),
     SignInType.facebook: RoundedLoadingButtonController(),
+    SignInType.x: RoundedLoadingButtonController(),
   };
 
   @override
@@ -118,6 +119,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     type: SignInType.facebook,
                     handleSignIn: handleSignIn,
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  MyButton(
+                    controller: controllers[SignInType.x]!,
+                    icon: FontAwesomeIcons.xTwitter,
+                    text: const Text(
+                      "Sign in with X",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500),
+                    ),
+                    color: Colors.black,
+                    type: SignInType.x,
+                    handleSignIn: handleSignIn,
+                  ),
                 ],
               )
             ],
@@ -138,7 +156,6 @@ class _LoginScreenState extends State<LoginScreen> {
       controllers[type]!.reset();
       return;
     }
-
     await signInProvider.signIn(type);
 
     if (signInProvider.hasError) {
@@ -148,7 +165,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     final isExisted = await signInProvider.checkUserExists();
-
     if (isExisted) {
       await _handleExistingUser(signInProvider, type);
     } else {
