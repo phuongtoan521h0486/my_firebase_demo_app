@@ -7,6 +7,8 @@ import 'package:my_firebase_demo_app/screens/login_screen.dart';
 import 'package:my_firebase_demo_app/utils/next_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../utils/map_sign_in_type.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -15,7 +17,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   Future getData() async {
     final signInProvider = context.read<SignInProvider>();
     await signInProvider.getDataFromSharedPreferences();
@@ -30,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final signInProvider = context.watch<SignInProvider>();
+    final user = signInProvider.myUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -57,10 +59,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(100),
-                      child: Image(
-                        fit: BoxFit.fill,
-                          image: CachedNetworkImageProvider(signInProvider.myUser!.imageUrl!),
-                      ),
+                      child: user!.imageUrl != null
+                          ? Image(
+                              fit: BoxFit.fill,
+                              image: CachedNetworkImageProvider(
+                                  user.imageUrl.toString()),
+                            )
+                          : Image.asset(
+                              'assets/images/user_avatar_default.png',
+                              fit: BoxFit.fill,
+                            ),
                     ),
                   ),
                 ),
@@ -84,52 +92,107 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 TextFormField(
                   decoration: const InputDecoration(
-                      label: Text("Name"), prefixIcon: Icon(Icons.person)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      ),
+                    ),
+                    label: Text("Name"),
+                    prefixIcon: Icon(Icons.person),
+                  ),
+                  readOnly: true,
+                  initialValue: user.name,
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
                   decoration: const InputDecoration(
-                      label: Text("Email"), prefixIcon: Icon(Icons.email)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      ),
+                    ),
+                    label: Text("Email"),
+                    prefixIcon: Icon(Icons.email),
+                  ),
+                  readOnly: true,
+                  initialValue: user.email,
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
                   decoration: const InputDecoration(
-                      label: Text("Phone"), prefixIcon: Icon(Icons.phone)),
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  decoration: const InputDecoration(
-                      label: Text("Provider"),
-                      prefixIcon: Icon(Icons.language)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      ),
+                    ),
+                    label: Text("Phone"),
+                    prefixIcon: Icon(Icons.phone),
+                  ),
+                  readOnly: true,
+                  initialValue: "",
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
                   obscureText: true,
                   decoration: InputDecoration(
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      ),
+                    ),
                     label: const Text("Password"),
                     prefixIcon: const Icon(Icons.fingerprint),
                     suffixIcon: IconButton(
                         icon: const Icon(FontAwesomeIcons.eyeSlash),
                         onPressed: () {}),
                   ),
+                  readOnly: true,
+                  initialValue: "",
                 ),
                 const SizedBox(height: 20),
-
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      signInProvider.signOut((signInProvider.myUser!.provider)!);
-                      nextScreenReplace(context, const LoginScreen());
-                    },
+                    onPressed: () {},
                     style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1855FD),
                         side: BorderSide.none,
                         shape: const StadiumBorder()),
-                    child: const Text("Sign Out",
+                    child: const Text("Edit Profile",
                         style: TextStyle(color: Colors.white)),
                   ),
                 ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Text("Powered by", style: TextStyle(fontSize: 12)),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Icon(
+                          getIconSignInType(user.provider.toString()),
+                          size: 12,
+                        )
+                      ],
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        signInProvider.signOut(user.provider!);
+                        nextScreenReplace(context, const LoginScreen());
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent.withOpacity(0.1),
+                          elevation: 0,
+                          foregroundColor: Colors.red,
+                          shape: const StadiumBorder(),
+                          side: BorderSide.none),
+                      child: const Text("Sign out"),
+                    ),
+                  ],
+                )
               ],
             ),
           ],

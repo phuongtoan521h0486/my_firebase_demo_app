@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../strategies/sign_in_factory.dart';
 import '../strategies/sign_in_strategy.dart';
+import '../utils/map_sign_in_type.dart';
 
 
 class SignInProvider extends ChangeNotifier {
@@ -44,26 +45,13 @@ class SignInProvider extends ChangeNotifier {
   // dang xuat
   Future signOut(String type) async {
     await firebaseAuth.signOut();
-    await SignInStrategyFactory.getStrategy(_mapSignInType(type)).signOut();
+    await SignInStrategyFactory.getStrategy(mapSignInType(type)).signOut();
     _isSignedIn = false;
     clearStoredData();
     notifyListeners();
   }
 
-  SignInType _mapSignInType(String type) {
-    switch (type) {
-      case "google":
-        return SignInType.google;
-      case "facebook":
-        return SignInType.facebook;
-      case "x":
-        return SignInType.x;
-      default:
-        return throw UnsupportedError("Unsupported sign-in provider");
-    }
-  }
-
-  // xoa thong tin dang nhap
+    // xoa thong tin dang nhap
   Future clearStoredData() async {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
@@ -162,7 +150,7 @@ class SignInProvider extends ChangeNotifier {
     catch (e) {
       print(e.toString());
       _hasError = true;
-      _errorCode = "Sign-in cancel by user.";
+      _errorCode = "Sign-in failed.";
       notifyListeners();
     }
   }
