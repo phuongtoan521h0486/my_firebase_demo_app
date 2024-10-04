@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_firebase_demo_app/strategies/sign_in_factory.dart';
 import 'package:my_firebase_demo_app/strategies/sign_in_strategy.dart';
@@ -6,7 +7,7 @@ import 'package:my_firebase_demo_app/strategies/sign_in_strategy.dart';
 import '../models/user.dart';
 
 class GoogleSignInStrategy implements SignInStrategy {
-  final GoogleSignIn googleSignIn = GoogleSignIn();
+  final GoogleSignIn googleSignIn = GoogleSignIn(clientId: dotenv.env['GOOGLE_APP_CLIENT_ID']);
 
   @override
   Future signIn() async {
