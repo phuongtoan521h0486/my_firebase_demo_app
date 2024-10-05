@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,7 +25,6 @@ class SignInProvider extends ChangeNotifier {
   MyUser? _myUser;
   MyUser? get myUser => _myUser;
 
-  // kiem tra dang nhap
   SignInProvider() {
     checkSignInUSer();
   }
@@ -42,7 +43,6 @@ class SignInProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // dang xuat
   Future signOut(String type) async {
     await firebaseAuth.signOut();
     await SignInStrategyFactory.getStrategy(mapSignInType(type)).signOut();
@@ -51,14 +51,12 @@ class SignInProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-    // xoa thong tin dang nhap
   Future clearStoredData() async {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     sharedPreferences.clear();
   }
 
-  // kiem tra user co ton tai hay chua
   Future<bool> checkUserExists() async {
     DocumentSnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -67,7 +65,6 @@ class SignInProvider extends ChangeNotifier {
     return snapshot.exists;
   }
 
-  // lay du lieu tu Firestore bang uid
   Future getUserDataFromFirestore(uid) async {
     DocumentSnapshot snapshot =
         await FirebaseFirestore.instance.collection("users").doc(uid).get();
@@ -83,7 +80,6 @@ class SignInProvider extends ChangeNotifier {
         : null;
   }
 
-  // luu du lieu user vao firestore
   Future saveDataToFirestore() async {
     final DocumentReference reference =
         FirebaseFirestore.instance.collection("users").doc(_myUser!.uid);
@@ -99,7 +95,6 @@ class SignInProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // luu du lieu vao share preferences
   Future saveDataToSharedPreferences() async {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
@@ -111,7 +106,6 @@ class SignInProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // lay du lieu tu share preferences
   Future getDataFromSharedPreferences() async {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
@@ -125,7 +119,6 @@ class SignInProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // new
   Future signIn(SignInType type) async {
     try {
       SignInStrategy strategy = SignInStrategyFactory.getStrategy(type);

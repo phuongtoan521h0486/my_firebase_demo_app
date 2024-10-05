@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_firebase_demo_app/providers/internet_provider.dart';
 import 'package:my_firebase_demo_app/providers/sign_in_provider.dart';
 import 'package:my_firebase_demo_app/screens/home_screen.dart';
+import 'package:my_firebase_demo_app/screens/user_profile.dart';
 import 'package:my_firebase_demo_app/strategies/sign_in_factory.dart';
 import 'package:my_firebase_demo_app/utils/my_snack_bar.dart';
 import 'package:my_firebase_demo_app/utils/next_screen.dart';
@@ -62,8 +64,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(
                       height: 20,
                     ),
+                    Image.asset('assets/images/login_background.png'),
                     const Text(
-                      "Welcome to Demo Application",
+                      "Task Tracking",
                       style: TextStyle(
                         fontSize: 25,
                         fontWeight: FontWeight.w500,
@@ -74,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 10,
                     ),
                     Text(
-                      "Authentication with Firebase",
+                      "Take control of your work and life, effortlessly.",
                       style: TextStyle(
                         fontSize: 15,
                         fontFamily: 'Anton',

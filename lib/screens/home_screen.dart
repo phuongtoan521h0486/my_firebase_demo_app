@@ -1,13 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gradient_borders/box_borders/gradient_box_border.dart';
-import 'package:my_firebase_demo_app/providers/sign_in_provider.dart';
-import 'package:my_firebase_demo_app/screens/login_screen.dart';
-import 'package:my_firebase_demo_app/utils/next_screen.dart';
 import 'package:provider/provider.dart';
 
-import '../utils/map_sign_in_type.dart';
+import '../providers/sign_in_provider.dart';
+import '../utils/next_screen.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,187 +14,76 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Future getData() async {
-    final signInProvider = context.read<SignInProvider>();
-    await signInProvider.getDataFromSharedPreferences();
-  }
-
-  @override
-  void initState() {
-    getData();
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     final signInProvider = context.watch<SignInProvider>();
+    signInProvider.getDataFromSharedPreferences();
     final user = signInProvider.myUser;
 
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("User Profile"),
+        title: Text("Task Tracking"),
         centerTitle: true,
+        actions: [
+          PopupMenuButton(
+            icon: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: user!.imageUrl != null
+                  ? Image(
+                fit: BoxFit.fill,
+                image: CachedNetworkImageProvider(
+                    user.imageUrl.toString()),
+              )
+                  : Image.asset(
+                'assets/images/user_avatar_default.png',
+                fit: BoxFit.fill,
+              ),
+            ),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                onTap: () => {
+                },
+                child: Text('Profile'),
+              ),
+              PopupMenuItem(
+                onTap: () {
+                  signInProvider.signOut(user.provider!);
+                  nextScreenReplace(context, const LoginScreen());
+                },
+                child: Text('Sign out'),
+              ),
+            ],
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Stack(
+      body: ListView(
+        children: [
+          ListTile(
+            leading: Checkbox(value: false, onChanged: (value) {},),
+            onTap: () {},
+            title: Text("Task 1"),
+            subtitle: Row(children: [
+              Icon(Icons.calendar_month),
+              Text("25/03/2003 - 25/03/2025")
+            ],),
+            trailing: Column(
               children: [
-                SizedBox(
-                  width: 120,
-                  height: 120,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      border: GradientBoxBorder(
-                        gradient: LinearGradient(
-                            colors: [Color(0xFF1855FD), Color(0xFF5C5CFD)]),
-                        width: 4,
-                      ),
-                      shape: BoxShape.circle,
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: user!.imageUrl != null
-                          ? Image(
-                              fit: BoxFit.fill,
-                              image: CachedNetworkImageProvider(
-                                  user.imageUrl.toString()),
-                            )
-                          : Image.asset(
-                              'assets/images/user_avatar_default.png',
-                              fit: BoxFit.fill,
-                            ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: 35,
-                    height: 35,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: const Color(0xFF1855FD)),
-                    child: const Icon(Icons.camera_alt,
-                        color: Colors.white, size: 20),
-                  ),
-                ),
+                Text("In progress"),
+                Text("Priority"),
               ],
             ),
-            const SizedBox(height: 20),
-            Column(
-              children: [
-                TextFormField(
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
-                      ),
-                    ),
-                    label: Text("Name"),
-                    prefixIcon: Icon(Icons.person),
-                  ),
-                  readOnly: true,
-                  initialValue: user.name,
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
-                      ),
-                    ),
-                    label: Text("Email"),
-                    prefixIcon: Icon(Icons.email),
-                  ),
-                  readOnly: true,
-                  initialValue: user.email,
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
-                      ),
-                    ),
-                    label: Text("Phone"),
-                    prefixIcon: Icon(Icons.phone),
-                  ),
-                  readOnly: true,
-                  initialValue: "",
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
-                      ),
-                    ),
-                    label: const Text("Password"),
-                    prefixIcon: const Icon(Icons.fingerprint),
-                    suffixIcon: IconButton(
-                        icon: const Icon(FontAwesomeIcons.eyeSlash),
-                        onPressed: () {}),
-                  ),
-                  readOnly: true,
-                  initialValue: "",
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1855FD),
-                        side: BorderSide.none,
-                        shape: const StadiumBorder()),
-                    child: const Text("Edit Profile",
-                        style: TextStyle(color: Colors.white)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        const Text("Powered by", style: TextStyle(fontSize: 12)),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Icon(
-                          getIconSignInType(user.provider.toString()),
-                          size: 12,
-                        )
-                      ],
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        signInProvider.signOut(user.provider!);
-                        nextScreenReplace(context, const LoginScreen());
-                      },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent.withOpacity(0.1),
-                          elevation: 0,
-                          foregroundColor: Colors.red,
-                          shape: const StadiumBorder(),
-                          side: BorderSide.none),
-                      child: const Text("Sign out"),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ],
-        ),
+          ),
+  
+
+        ],
       ),
+      floatingActionButton: FloatingActionButton(
+          backgroundColor: Color(0xFF0C23FE),
+          onPressed: () {
+            print("Add new Task");
+          },
+          child: Icon(Icons.add)),
     );
   }
 }

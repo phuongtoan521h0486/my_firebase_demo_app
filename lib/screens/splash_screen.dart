@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_firebase_demo_app/providers/sign_in_provider.dart';
 import 'package:my_firebase_demo_app/screens/home_screen.dart';
+import 'package:my_firebase_demo_app/screens/user_profile.dart';
 import 'package:my_firebase_demo_app/screens/login_screen.dart';
 import 'package:my_firebase_demo_app/utils/next_screen.dart';
 import 'package:provider/provider.dart';
@@ -48,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   fontSize: 50,
                   fontWeight: FontWeight.w900,
                   fontFamily: 'Anton',
-              color: Color(0xFF08121E)),
+                  color: Color(0xFF08121E)),
             )
           ],
         )),

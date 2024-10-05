@@ -28,10 +28,17 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => InternetProvider())
       ],
       child: MaterialApp(
+        theme: ThemeData(
+          useMaterial3: false,
+          primaryColor: const Color(0xFF0C23FE),
+          colorScheme: ColorScheme.fromSwatch().copyWith(
+            primary: const Color(
+                0xFF0C23FE),
+          ),
+        ),
         debugShowCheckedModeBanner: false,
         home: SplashScreen(),
       ),
     );
   }
 }
-
