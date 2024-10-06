@@ -29,6 +29,14 @@ class _LoginScreenState extends State<LoginScreen> {
   };
 
   @override
+  void dispose() {
+    controllers.forEach((key, controller) {
+      controller.reset();
+    });
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,

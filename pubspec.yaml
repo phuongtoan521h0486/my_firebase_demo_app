@@ -51,6 +51,9 @@ dependencies:
   flutter_dotenv: ^5.1.0
   http: ^1.2.2
   twitter_login: ^4.4.2
+  intl: ^0.19.0
+  table_calendar: ^3.1.2
+  flutter_slidable: ^3.1.1
 
 dev_dependencies:
   flutter_test:

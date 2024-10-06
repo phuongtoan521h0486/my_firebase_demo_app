@@ -1,16 +1,32 @@
+import 'package:intl/intl.dart';
+
 class Task {
-  String id;
+  String? id;
   String name;
-  DateTime start;
-  DateTime end;
+  DateTime? dueDate;
   TaskPriority priority;
   TaskStatus status;
-  double completePercent;
 
-  Task(this.id, this.name, this.start, this.end, this.priority, this.status,
-      this.completePercent);
+  Task(
+      {this.id,
+      required this.name,
+      this.dueDate,
+      required this.priority,
+      required this.status});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'priority': priority.name,
+      'status': status.name,
+      'dueDate': dueDate != null
+          ? DateFormat('dd/MM/yyyy').format(dueDate!)
+          : "No deadline",
+    };
+  }
 }
 
-enum TaskStatus { inProgress, done, cancelled }
+enum TaskStatus { inProgress, done}
 
 enum TaskPriority { low, normal, high }
