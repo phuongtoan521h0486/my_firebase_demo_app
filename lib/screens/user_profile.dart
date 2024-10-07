@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 import 'package:my_firebase_demo_app/providers/sign_in_provider.dart';
+import 'package:my_firebase_demo_app/screens/home_screen.dart';
 import 'package:my_firebase_demo_app/screens/login_screen.dart';
 import 'package:my_firebase_demo_app/utils/next_screen.dart';
 import 'package:provider/provider.dart';
@@ -118,39 +119,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   readOnly: true,
                   initialValue: user.email,
                 ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1855FD),
-                        side: BorderSide.none,
-                        shape: const StadiumBorder()),
-                    child: const Text("Edit Profile",
-                        style: TextStyle(color: Colors.white)),
-                  ),
-                ),
+                // const SizedBox(height: 20),
+                // SizedBox(
+                //   width: double.infinity,
+                //   child: ElevatedButton(
+                //     onPressed: () {},
+                //     style: ElevatedButton.styleFrom(
+                //         backgroundColor: const Color(0xFF1855FD),
+                //         side: BorderSide.none,
+                //         shape: const StadiumBorder()),
+                //     child: const Text("Edit Profile",
+                //         style: TextStyle(color: Colors.white)),
+                //   ),
+                // ),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        const Text("Powered by", style: TextStyle(fontSize: 12)),
+                        const Text("Powered by", style: TextStyle(fontSize: 16)),
                         const SizedBox(
                           width: 5,
                         ),
                         Icon(
                           getIconSignInType(user.provider.toString()),
-                          size: 12,
+                          size: 16,
                         )
                       ],
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        signInProvider.signOut(user.provider!);
-                        nextScreenReplace(context, const LoginScreen());
+                        nextScreenReplace(context, const HomeScreen());
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.redAccent.withOpacity(0.1),
@@ -158,10 +158,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           foregroundColor: Colors.red,
                           shape: const StadiumBorder(),
                           side: BorderSide.none),
-                      child: const Text("Sign out"),
+                      child: const Text("Back"),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ],

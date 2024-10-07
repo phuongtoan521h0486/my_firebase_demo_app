@@ -77,6 +77,10 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                       style: const TextStyle(fontSize: 16),
                     ),
                     TableCalendar(
+                      headerStyle: const HeaderStyle(
+                    titleCentered: true,
+                    formatButtonVisible: false,
+                    ),
                       firstDay: DateTime.utc(2000, 1, 1),
                       lastDay: DateTime.utc(2100, 1, 1),
                       focusedDay: selectedDate ?? DateTime.now(),
@@ -86,6 +90,11 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                       onDaySelected: (selectedDay, focusedDay) {
                         setState(() {
                           selectedDate = selectedDay;
+                        });
+                      },
+                      onPageChanged: (focusedDay) {
+                        setState(() {
+                          selectedDate = focusedDay;
                         });
                       },
                     ),

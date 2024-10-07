@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:my_firebase_demo_app/models/task.dart';
+import 'package:my_firebase_demo_app/screens/user_profile.dart';
 import 'package:provider/provider.dart';
 import '../providers/sign_in_provider.dart';
 import '../utils/bottom_sheet_widget.dart';
+import '../utils/my_snack_bar.dart';
 import '../utils/next_screen.dart';
 import 'login_screen.dart';
 
@@ -81,7 +83,126 @@ class _HomeScreenState extends State<HomeScreen>
         motion: const ScrollMotion(),
         children: [
           SlidableAction(
-            onPressed: (_) {},
+            onPressed: (_) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  bool noDate = task['dueDate'] == "No Deadline";
+                  DateTime? selectedDate = !noDate
+                      ? DateFormat('dd/MM/yyyy').parse(task['dueDate'])
+                      : null;
+                  TaskPriority selectedPriority = TaskPriority.values
+                      .firstWhere(
+                          (priority) => priority.name == task['priority']);
+                  var controller = TextEditingController(text: task['name']);
+
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      return AlertDialog(
+                        title: const Text('Edit Task'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextField(
+                              controller: controller,
+                              decoration: const InputDecoration(
+                                labelText: 'Task Name',
+                              ),
+                            ),
+                            CheckboxListTile(
+                              value: noDate,
+                              onChanged: (checked) {
+                                setState(() {
+                                  noDate = checked!;
+                                  if (noDate) selectedDate = null;
+                                });
+                              },
+                              title: const Text("No Deadline"),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                const Text("Priority: "),
+                                DropdownButton<TaskPriority>(
+                                  value: selectedPriority,
+                                  items: TaskPriority.values
+                                      .map((TaskPriority priority) {
+                                    return DropdownMenuItem<TaskPriority>(
+                                      value: priority,
+                                      child: Text(priority.name),
+                                    );
+                                  }).toList(),
+                                  onChanged: (TaskPriority? newValue) {
+                                    setState(() {
+                                      selectedPriority = newValue!;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                            if (!noDate)
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: selectedDate ?? DateTime.now(),
+                                    firstDate: DateTime.utc(2000, 1, 1),
+                                    lastDate: DateTime.utc(2100, 1, 1),
+                                  );
+
+                                  if (pickedDate != null) {
+                                    setState(() {
+                                      selectedDate = pickedDate;
+                                    });
+                                  }
+                                },
+                                child: Text(selectedDate != null
+                                    ? DateFormat('dd/MM/yyyy')
+                                        .format(selectedDate!)
+                                    : "Edit Deadline"),
+                              ),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              if (controller.text.isEmpty) {
+                                Navigator.pop(context);
+                                openSnackBar(context, "Task Name can not empty",
+                                    Colors.red);
+                              } else {
+                                FirebaseFirestore.instance
+                                    .collection("users")
+                                    .doc(userId)
+                                    .collection("tasks")
+                                    .doc(task['id'])
+                                    .update({
+                                  'name': controller.text,
+                                  'dueDate': noDate
+                                      ? "No Deadline"
+                                      : DateFormat('dd/MM/yyyy')
+                                          .format(selectedDate!),
+                                  'priority': selectedPriority.name,
+                                });
+
+                                Navigator.pop(context);
+                              }
+                            },
+                            child: const Text('Save'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              );
+            },
             backgroundColor: Colors.green,
             foregroundColor: Colors.white,
             icon: Icons.edit,
@@ -168,7 +289,9 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             itemBuilder: (context) => [
               PopupMenuItem(
-                onTap: () => {},
+                onTap: () => {
+                  nextScreen(context, const ProfileScreen())
+                },
                 child: Text('Profile'),
               ),
               PopupMenuItem(
