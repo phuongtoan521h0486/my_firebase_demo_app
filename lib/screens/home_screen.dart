@@ -24,28 +24,14 @@ class _HomeScreenState extends State<HomeScreen>
   TextEditingController taskController = TextEditingController();
   late final controller = SlidableController(this);
 
-  Future<List<Map<String, dynamic>>> fetchUserTasks(String userId) async {
-    try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection("users")
-          .doc(userId)
-          .collection("tasks")
-          .get();
-
-      List<Map<String, dynamic>> tasks = querySnapshot.docs.map((doc) {
-        return doc.data() as Map<String, dynamic>;
-      }).toList();
-
-      return tasks;
-    } catch (e) {
-      print("Error fetching tasks: $e");
-      return [];
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
+  Stream<List<Map<String, dynamic>>> streamUserTasks(String userId) {
+    return FirebaseFirestore.instance
+        .collection("users")
+        .doc(userId)
+        .collection("tasks")
+        .snapshots()
+        .map((snapshot) =>
+        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList());
   }
 
   String _getStatusString(TaskStatus status) {
@@ -76,8 +62,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _tasksBuilder(
-      BuildContext context, Map<String, dynamic> task, String userId) {
+  Widget _tasksBuilder(BuildContext context, Map<String, dynamic> task, String userId) {
     return Slidable(
       endActionPane: ActionPane(
         motion: const ScrollMotion(),
@@ -92,8 +77,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ? DateFormat('dd/MM/yyyy').parse(task['dueDate'])
                       : null;
                   TaskPriority selectedPriority = TaskPriority.values
-                      .firstWhere(
-                          (priority) => priority.name == task['priority']);
+                      .firstWhere((priority) => priority.name == task['priority']);
                   var controller = TextEditingController(text: task['name']);
 
                   return StatefulBuilder(
@@ -125,8 +109,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 const Text("Priority: "),
                                 DropdownButton<TaskPriority>(
                                   value: selectedPriority,
-                                  items: TaskPriority.values
-                                      .map((TaskPriority priority) {
+                                  items: TaskPriority.values.map((TaskPriority priority) {
                                     return DropdownMenuItem<TaskPriority>(
                                       value: priority,
                                       child: Text(priority.name),
@@ -157,8 +140,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   }
                                 },
                                 child: Text(selectedDate != null
-                                    ? DateFormat('dd/MM/yyyy')
-                                        .format(selectedDate!)
+                                    ? DateFormat('dd/MM/yyyy').format(selectedDate!)
                                     : "Edit Deadline"),
                               ),
                           ],
@@ -186,8 +168,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   'name': controller.text,
                                   'dueDate': noDate
                                       ? "No Deadline"
-                                      : DateFormat('dd/MM/yyyy')
-                                          .format(selectedDate!),
+                                      : DateFormat('dd/MM/yyyy').format(selectedDate!),
                                   'priority': selectedPriority.name,
                                 });
 
@@ -236,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen>
                 .doc(task['id'])
                 .update({
               'status':
-                  isDone! ? TaskStatus.done.name : TaskStatus.inProgress.name
+              isDone! ? TaskStatus.done.name : TaskStatus.inProgress.name
             });
           },
         ),
@@ -278,14 +259,14 @@ class _HomeScreenState extends State<HomeScreen>
               borderRadius: BorderRadius.circular(100),
               child: user!.imageUrl != null
                   ? Image(
-                      fit: BoxFit.fill,
-                      image:
-                          CachedNetworkImageProvider(user.imageUrl.toString()),
-                    )
+                fit: BoxFit.fill,
+                image:
+                CachedNetworkImageProvider(user.imageUrl.toString()),
+              )
                   : Image.asset(
-                      'assets/images/user_avatar_default.png',
-                      fit: BoxFit.fill,
-                    ),
+                'assets/images/user_avatar_default.png',
+                fit: BoxFit.fill,
+              ),
             ),
             itemBuilder: (context) => [
               PopupMenuItem(
@@ -305,8 +286,8 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ],
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: fetchUserTasks(user.uid!),
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: streamUserTasks(user.uid!),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(child: Text("Error loading tasks"));

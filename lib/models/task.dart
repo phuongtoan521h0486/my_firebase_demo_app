@@ -22,7 +22,7 @@ class Task {
       'status': status.name,
       'dueDate': dueDate != null
           ? DateFormat('dd/MM/yyyy').format(dueDate!)
-          : "No deadline",
+          : "No Deadline",
     };
   }
 }
