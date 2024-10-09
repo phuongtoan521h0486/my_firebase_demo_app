@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:http/http.dart' as http;
 import 'package:my_firebase_demo_app/strategies/sign_in_factory.dart';
 import 'package:my_firebase_demo_app/strategies/sign_in_strategy.dart';
-import 'package:http/http.dart' as http;
 
 import '../models/user.dart';
 

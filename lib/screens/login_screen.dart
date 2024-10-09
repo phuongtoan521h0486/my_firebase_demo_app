@@ -1,16 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_firebase_demo_app/providers/internet_provider.dart';
 import 'package:my_firebase_demo_app/providers/sign_in_provider.dart';
 import 'package:my_firebase_demo_app/screens/home_screen.dart';
-import 'package:my_firebase_demo_app/screens/user_profile.dart';
 import 'package:my_firebase_demo_app/strategies/sign_in_factory.dart';
 import 'package:my_firebase_demo_app/utils/my_snack_bar.dart';
-import 'package:my_firebase_demo_app/utils/next_screen.dart';
-import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import 'package:provider/provider.dart';
+import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
+
 import '../utils/my_button.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -21,7 +19,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final GlobalKey _scaffoldKey = GlobalKey<ScaffoldState>();
   final Map<SignInType, RoundedLoadingButtonController> controllers = {
     SignInType.google: RoundedLoadingButtonController(),
     SignInType.facebook: RoundedLoadingButtonController(),
@@ -39,7 +36,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
@@ -183,19 +179,16 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // xu ly user ton tai
   Future _handleExistingUser(SignInProvider signInProvider, SignInType type) async {
     await signInProvider.getUserDataFromFirestore(signInProvider.myUser!.uid);
     await _saveUserData(signInProvider, type);
   }
 
-  // xu ly user moi
   Future _handleNewUser(SignInProvider signInProvider, SignInType type) async {
     await signInProvider.saveDataToFirestore();
     await _saveUserData(signInProvider, type);
   }
 
-  // luu tru user data dang nhap
   Future _saveUserData(SignInProvider signInProvider, SignInType type) async {
     await signInProvider.saveDataToSharedPreferences();
     await signInProvider.setSignIn();
@@ -204,9 +197,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   handleAfterSignIn() {
-    Future.delayed(const Duration(microseconds: 1000)).then((value) {
-      nextScreenReplace(context, const HomeScreen());
-    });
+    Navigator.pop(context);
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
   }
 }
 

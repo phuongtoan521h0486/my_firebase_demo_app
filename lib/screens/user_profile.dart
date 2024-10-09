@@ -1,11 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 import 'package:my_firebase_demo_app/providers/sign_in_provider.dart';
-import 'package:my_firebase_demo_app/screens/home_screen.dart';
-import 'package:my_firebase_demo_app/screens/login_screen.dart';
-import 'package:my_firebase_demo_app/utils/next_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../utils/map_sign_in_type.dart';
@@ -119,19 +115,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   readOnly: true,
                   initialValue: user.email,
                 ),
-                // const SizedBox(height: 20),
-                // SizedBox(
-                //   width: double.infinity,
-                //   child: ElevatedButton(
-                //     onPressed: () {},
-                //     style: ElevatedButton.styleFrom(
-                //         backgroundColor: const Color(0xFF1855FD),
-                //         side: BorderSide.none,
-                //         shape: const StadiumBorder()),
-                //     child: const Text("Edit Profile",
-                //         style: TextStyle(color: Colors.white)),
-                //   ),
-                // ),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -150,7 +133,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        nextScreenReplace(context, const HomeScreen());
+                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.redAccent.withOpacity(0.1),

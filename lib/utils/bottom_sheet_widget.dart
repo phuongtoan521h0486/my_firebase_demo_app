@@ -1,10 +1,10 @@
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_firebase_demo_app/utils/my_snack_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+
 import '../models/task.dart';
 import '../providers/sign_in_provider.dart';
 
@@ -140,7 +140,6 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                         } catch (e) {
                           openSnackBar(context, "Failed to add task: $e", Colors.red);
                         } finally {
-                          // Clear input fields after adding the task
                           taskController.clear();
                           setState(() {
                             selectedDate = null;

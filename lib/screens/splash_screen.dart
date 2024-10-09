@@ -1,12 +1,9 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_firebase_demo_app/providers/sign_in_provider.dart';
 import 'package:my_firebase_demo_app/screens/home_screen.dart';
-import 'package:my_firebase_demo_app/screens/user_profile.dart';
 import 'package:my_firebase_demo_app/screens/login_screen.dart';
-import 'package:my_firebase_demo_app/utils/next_screen.dart';
 import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -23,9 +20,15 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     Timer(const Duration(seconds: 1), () {
-      signInProvider.isSignedIn
-          ? nextScreen(context, const HomeScreen())
-          : nextScreen(context, const LoginScreen());
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => signInProvider.isSignedIn
+              ? const HomeScreen()
+              : const LoginScreen(),
+        ),
+      );
     });
   }
 

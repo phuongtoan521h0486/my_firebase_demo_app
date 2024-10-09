@@ -6,10 +6,10 @@ import 'package:intl/intl.dart';
 import 'package:my_firebase_demo_app/models/task.dart';
 import 'package:my_firebase_demo_app/screens/user_profile.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/sign_in_provider.dart';
 import '../utils/bottom_sheet_widget.dart';
 import '../utils/my_snack_bar.dart';
-import '../utils/next_screen.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -31,16 +31,7 @@ class _HomeScreenState extends State<HomeScreen>
         .collection("tasks")
         .snapshots()
         .map((snapshot) =>
-        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList());
-  }
-
-  String _getStatusString(TaskStatus status) {
-    switch (status) {
-      case TaskStatus.inProgress:
-        return "In Progress";
-      case TaskStatus.done:
-        return "Done";
-    }
+        snapshot.docs.map((doc) => doc.data()).toList());
   }
 
   Widget _getPriorityDot(String priority) {
@@ -210,14 +201,16 @@ class _HomeScreenState extends State<HomeScreen>
           shape: const CircleBorder(),
           value: task['status'] == TaskStatus.done.name,
           onChanged: (isDone) {
-            FirebaseFirestore.instance
-                .collection("users")
-                .doc(userId)
-                .collection("tasks")
-                .doc(task['id'])
-                .update({
-              'status':
-              isDone! ? TaskStatus.done.name : TaskStatus.inProgress.name
+            setState(() {
+              FirebaseFirestore.instance
+                  .collection("users")
+                  .doc(userId)
+                  .collection("tasks")
+                  .doc(task['id'])
+                  .update({
+                'status':
+                isDone! ? TaskStatus.done.name : TaskStatus.inProgress.name
+              });
             });
           },
         ),
@@ -271,16 +264,17 @@ class _HomeScreenState extends State<HomeScreen>
             itemBuilder: (context) => [
               PopupMenuItem(
                 onTap: () => {
-                  nextScreen(context, const ProfileScreen())
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()))
                 },
-                child: Text('Profile'),
+                child: const Text('Profile'),
               ),
               PopupMenuItem(
                 onTap: () {
                   signInProvider.signOut(user.provider!);
-                  nextScreenReplace(context, const LoginScreen());
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
                 },
-                child: Text('Sign out'),
+                child: const Text('Sign out'),
               ),
             ],
           ),
