@@ -1,5 +1,6 @@
 # .gitignore
 .env
+/node_modules
 
 # Miscellaneous
 *.class

@@ -271,8 +271,7 @@ class _HomeScreenState extends State<HomeScreen>
               PopupMenuItem(
                 onTap: () {
                   signInProvider.signOut(user.provider!);
-                  Navigator.pop(context);
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
                 },
                 child: const Text('Sign out'),
               ),

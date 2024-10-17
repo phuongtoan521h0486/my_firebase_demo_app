@@ -197,8 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   handleAfterSignIn() {
-    Navigator.pop(context);
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
   }
 }
 
