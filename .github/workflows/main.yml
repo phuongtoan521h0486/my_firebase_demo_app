@@ -10,6 +10,7 @@ on:
 
 jobs:
   build:
+    name: Build & Release
     runs-on: ubuntu-latest
 
     env:
@@ -51,13 +52,13 @@ jobs:
       WINDOWS_MEASUREMENT_ID: ${{ secrets.WINDOWS_MEASUREMENT_ID }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.x'
+          flutter-version: '3.24.3'
 
       - name: Install dependencies
         run: flutter pub get
@@ -65,32 +66,37 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - name: Build APK for Android
-        if: github.event_name == 'push' || github.event_name == 'pull_request'
-        run: flutter build apk --release
+      - name: Build APK
+        run: flutter build apk
 
-      - name: Build for iOS
-        if: github.event_name == 'push' || github.event_name == 'pull_request'
-        run: flutter build ios --release
-        env:
-          CI: true
+      - name: Build Web
+        run: flutter build web
 
-      - name: Build web
-        if: github.event_name == 'push' || github.event_name == 'pull_request'
-        run: flutter build web --release
-
-      - name: Deploy to Firebase Hosting (for Web)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: firebase deploy --only hosting
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-
-      - name: Upload APK to GitHub Artifacts
-        if: github.event_name == 'push' || github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v3
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
         with:
-          name: android-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: apk-artifact
+          path: build/app/outputs/apk/release/*.apk
+
+      - name: Upload Web
+        uses: actions/upload-artifact@v2
+        with:
+          name: web-artifact
+          path: build/web
+
+      - name: Push to Releases
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/app/outputs/apk/release/*.apk"
+          tag: v1.0.${{ github.run_number }} # Tag for the release
+          token: ${{ secrets.GITHUB_TOKEN }} # Using the default GitHub Actions token
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Automatically provided token
+          branch: gh-pages  # The branch to deploy to
+          folder: build/web
 
       - name: Clean up
         run: flutter clean
